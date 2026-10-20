@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>学校统一身份认证</title></head>
+<body>
+<div class="sso-container">
+    <h2>学校统一身份认证平台</h2>
+    <form class="login-form" action="/sso/login" method="post">
+        <div class="form-group">
+            <label>学号/工号</label>
+            <input type="text" name="username" placeholder="请输入学号" />
+        </div>
+        <div class="form-group">
+            <label>密码</label>
+            <input type="password" name="password" placeholder="请输入密码" />
+        </div>
+        <button type="submit">登录</button>
+    </form>
+    <p class="tip">请使用学校统一身份认证账号登录</p>
+</div>
+</body>
+</html>

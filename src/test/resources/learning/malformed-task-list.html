@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>异常任务列表</title>
+</head>
+<body>
+    <!-- 缺少任务ID -->
+    <div class="task-item">
+        <div class="task-title">无ID任务</div>
+        <div class="task-type">作业</div>
+        <div class="task-status">未完成</div>
+    </div>
+
+    <!-- 缺少标题 -->
+    <div class="task-item" data-taskid="task-no-title">
+        <div class="task-type">作业</div>
+        <div class="task-status">未完成</div>
+    </div>
+
+    <!-- 标题为空 -->
+    <div class="task-item" data-taskid="task-empty-title">
+        <div class="task-title"></div>
+        <div class="task-type">作业</div>
+        <div class="task-status">未完成</div>
+    </div>
+
+    <!-- 未知任务类型 -->
+    <div class="task-item" data-taskid="task-unknown-type">
+        <div class="task-title">直播课程</div>
+        <div class="task-type">直播</div>
+        <div class="task-status">未完成</div>
+    </div>
+
+    <!-- 无效截止时间 -->
+    <div class="task-item" data-taskid="task-invalid-deadline">
+        <div class="task-title">历史任务</div>
+        <div class="task-type">作业</div>
+        <div class="task-deadline">明天</div>
+        <div class="task-status">已完成</div>
+    </div>
+
+    <!-- 正常任务（用于对比） -->
+    <div class="task-item" data-taskid="task-valid">
+        <div class="task-title">正常作业</div>
+        <div class="task-type">作业</div>
+        <div class="task-deadline">2026-12-31 23:59:59</div>
+        <div class="task-status">未完成</div>
+    </div>
+</body>
+</html>

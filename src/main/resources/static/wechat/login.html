@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>WeChat-iLink-bot 会话管理</title>
+    <link rel="stylesheet" href="/wechat/css/login.css">
+    <script defer src="/wechat/js/login.js"></script>
+</head>
+<body>
+<aside id="status-notification" class="notification notification--loading" role="status" aria-live="polite">
+    <span class="notification-mark" aria-hidden="true"></span>
+    <div>
+        <strong id="notification-title">Bot 状态</strong>
+        <p id="login-status">正在获取登录状态…</p>
+    </div>
+</aside>
+<main class="login-card" aria-labelledby="page-title">
+    <header>
+        <img class="brand-mark" src="/wechat/fig/wechat.png" alt="" aria-hidden="true">
+        <div>
+            <h1 id="page-title">微信 Bot 会话管理</h1>
+            <p class="subtitle">每个会话可扫码登录一个独立的 iLink Bot</p>
+        </div>
+    </header>
+
+    <section class="bot-selector" aria-label="Bot 会话选择">
+        <label for="bot-select">当前 Bot</label>
+        <select id="bot-select"></select>
+        <div class="button-row">
+            <button id="add-bot-button" class="secondary-button" type="button">新增 Bot</button>
+            <button id="remove-bot-button" class="danger-button" type="button">移除当前 Bot</button>
+        </div>
+    </section>
+
+    <section class="qr-section" aria-live="polite">
+        <div class="qr-frame">
+            <img id="qr-code" alt="微信登录二维码">
+            <div id="qr-mask" class="qr-mask">
+                <span>正在创建 Bot 会话…</span>
+            </div>
+        </div>
+        <p id="error-message" class="error-message" hidden></p>
+    </section>
+
+    <button id="refresh-button" class="primary-button" type="button">
+        刷新当前 Bot 二维码
+    </button>
+
+    <footer>
+        快来认领你的专属 bot 吧
+    </footer>
+</main>
+</body>
+</html>

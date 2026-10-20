@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weida.bot.wechatilinkbot.persistence.mybatis.ConversationMessageMapper">
+
+    <resultMap id="conversationMessageResultMap"
+            type="com.weida.bot.wechatilinkbot.model.ConversationMessage">
+        <constructor>
+            <idArg column="id" javaType="java.lang.Long"/>
+            <arg column="conversation_id" javaType="java.lang.String"/>
+            <arg column="message_role" javaType="java.lang.String"/>
+            <arg column="content" javaType="java.lang.String"/>
+            <arg column="create_time" javaType="java.time.Instant"
+                    typeHandler="com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler"/>
+            <arg column="update_time" javaType="java.time.Instant"
+                    typeHandler="com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler"/>
+        </constructor>
+    </resultMap>
+
+    <select id="listRecent" resultMap="conversationMessageResultMap">
+        SELECT id,
+               conversation_id,
+               message_role,
+               content,
+               create_time,
+               update_time
+        FROM (
+            SELECT id,
+                   conversation_id,
+                   message_role,
+                   content,
+                   create_time,
+                   update_time
+            FROM bot_conversation_message
+            WHERE conversation_id = #{conversationId}
+            ORDER BY id DESC
+            LIMIT #{limit}
+        ) recent_message
+        ORDER BY id ASC
+    </select>
+
+    <select id="findSummary" resultType="java.lang.String">
+        SELECT summary
+        FROM bot_conversation_summary
+        WHERE conversation_id = #{conversationId}
+    </select>
+
+    <insert id="upsertSummary">
+        INSERT INTO bot_conversation_summary (
+            conversation_id,
+            summary,
+            updated_at
+        ) VALUES (
+            #{conversationId},
+            #{summary},
+            #{updatedAt,
+                typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler}
+        )
+        ON CONFLICT (conversation_id) DO UPDATE SET
+            summary = excluded.summary,
+            updated_at = excluded.updated_at
+    </insert>
+
+    <insert id="insert">
+        INSERT INTO bot_conversation_message (
+            conversation_id,
+            message_role,
+            content
+        ) VALUES (
+            #{conversationId},
+            #{role},
+            #{content}
+        )
+    </insert>
+
+    <select id="getRetentionCutoffId" resultType="java.lang.Long">
+        SELECT id
+        FROM bot_conversation_message
+        WHERE conversation_id = #{conversationId}
+        ORDER BY id DESC
+        LIMIT 1 OFFSET #{offset}
+    </select>
+
+    <delete id="deleteOlder">
+        DELETE FROM bot_conversation_message
+        WHERE conversation_id = #{conversationId}
+          AND id &lt; #{cutoffId}
+    </delete>
+
+    <delete id="deleteExpired">
+        DELETE FROM bot_conversation_message
+        WHERE conversation_id = #{conversationId}
+          AND create_time &lt; #{createdBefore,
+              typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler}
+    </delete>
+
+    <delete id="deleteExpiredSummary">
+        DELETE FROM bot_conversation_summary
+        WHERE conversation_id = #{conversationId}
+          AND updated_at &lt; #{updatedBefore,
+              typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler}
+    </delete>
+
+    <delete id="deleteSummary">
+        DELETE FROM bot_conversation_summary
+        WHERE conversation_id = #{conversationId}
+    </delete>
+
+    <delete id="deleteAll">
+        DELETE FROM bot_conversation_message
+        WHERE conversation_id = #{conversationId}
+    </delete>
+
+</mapper>

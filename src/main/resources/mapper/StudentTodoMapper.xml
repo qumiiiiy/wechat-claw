@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weida.bot.wechatilinkbot.persistence.mybatis.StudentTodoMapper">
+
+    <resultMap id="studentTodoResultMap"
+            type="com.weida.bot.wechatilinkbot.model.StudentTodo">
+        <constructor>
+            <idArg column="id" javaType="java.lang.String"/>
+            <arg column="conversation_id" javaType="java.lang.String"/>
+            <arg column="title" javaType="java.lang.String"/>
+            <arg column="due_time" javaType="java.time.Instant"
+                    typeHandler="com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler"/>
+            <arg column="status"
+                    javaType="com.weida.bot.wechatilinkbot.model.StudentTodoStatus"/>
+            <arg column="source" javaType="java.lang.String"/>
+            <arg column="created_at" javaType="java.time.Instant"
+                    typeHandler="com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler"/>
+        </constructor>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO student_todo (
+            id,
+            conversation_id,
+            title,
+            due_time,
+            status,
+            source,
+            created_at
+        ) VALUES (
+            #{id},
+            #{conversationId},
+            #{title},
+            #{dueTime, typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            #{status},
+            #{source},
+            #{createdAt, typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler}
+        )
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE student_todo
+        SET status = #{newStatus}
+        WHERE id = #{id}
+          AND conversation_id = #{conversationId}
+          AND status = #{previousStatus}
+    </update>
+
+    <select id="findById" resultMap="studentTodoResultMap">
+        SELECT id,
+               conversation_id,
+               title,
+               due_time,
+               status,
+               source,
+               created_at
+        FROM student_todo
+        WHERE id = #{id}
+          AND conversation_id = #{conversationId}
+    </select>
+
+    <select id="listPendingByConversation" resultMap="studentTodoResultMap">
+        SELECT id,
+               conversation_id,
+               title,
+               due_time,
+               status,
+               source,
+               created_at
+        FROM student_todo
+        WHERE conversation_id = #{conversationId}
+          AND status = 'PENDING'
+        ORDER BY due_time ASC
+    </select>
+
+    <select id="listAllPending" resultMap="studentTodoResultMap">
+        SELECT id,
+               conversation_id,
+               title,
+               due_time,
+               status,
+               source,
+               created_at
+        FROM student_todo
+        WHERE status = 'PENDING'
+        ORDER BY conversation_id, due_time ASC
+    </select>
+
+    <update id="updateDueTime">
+        UPDATE student_todo
+        SET due_time = #{newDueTime,
+              typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler}
+        WHERE id = #{id}
+          AND conversation_id = #{conversationId}
+          AND status = #{expectedStatus}
+    </update>
+
+    <delete id="deleteCompletedOlderThan">
+        DELETE FROM student_todo
+        WHERE status = 'COMPLETED'
+          AND created_at &lt; #{cutoff,
+              typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler}
+    </delete>
+
+</mapper>

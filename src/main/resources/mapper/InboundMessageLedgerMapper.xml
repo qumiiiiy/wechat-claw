@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weida.bot.wechatilinkbot.persistence.mybatis.InboundMessageLedgerMapper">
+
+    <resultMap id="ledgerRowResultMap"
+            type="com.weida.bot.wechatilinkbot.persistence.mybatis.InboundMessageLedgerRow">
+        <result column="status" property="status"/>
+        <result column="lease_id" property="leaseId"/>
+        <result column="attempt_count" property="attemptCount"/>
+    </resultMap>
+
+    <insert id="claim">
+        INSERT INTO ilink_inbound_message (
+            bot_id,
+            message_id,
+            sender_id,
+            conversation_id,
+            status,
+            attempt_count,
+            first_received_at,
+            last_received_at,
+            lease_id,
+            lease_until
+        ) VALUES (
+            #{botId},
+            #{messageId},
+            #{senderId},
+            #{conversationId},
+            'PROCESSING',
+            1,
+            #{firstReceivedAt,
+                typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            #{now,
+                typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            #{leaseId},
+            #{leaseUntil,
+                typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler}
+        )
+        ON CONFLICT (bot_id, message_id) DO UPDATE SET
+            sender_id = excluded.sender_id,
+            conversation_id = excluded.conversation_id,
+            status = 'PROCESSING',
+            attempt_count = attempt_count + 1,
+            last_received_at = excluded.last_received_at,
+            lease_id = excluded.lease_id,
+            lease_until = excluded.lease_until,
+            next_attempt_at = NULL,
+            last_error = NULL,
+            completed_at = NULL
+        WHERE status NOT IN ('COMPLETED', 'DEAD')
+          AND (lease_until IS NULL OR lease_until &lt;= excluded.last_received_at)
+          AND (next_attempt_at IS NULL OR next_attempt_at &lt;= excluded.last_received_at)
+    </insert>
+
+    <select id="find" resultMap="ledgerRowResultMap">
+        SELECT status,
+               lease_id,
+               attempt_count
+        FROM ilink_inbound_message
+        WHERE bot_id = #{botId}
+          AND message_id = #{messageId}
+    </select>
+
+    <update id="complete">
+        UPDATE ilink_inbound_message
+        SET status = 'COMPLETED',
+            completed_at = #{completedAt,
+                typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            last_received_at = #{completedAt,
+                typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            lease_id = NULL,
+            lease_until = NULL,
+            next_attempt_at = NULL,
+            last_error = NULL
+        WHERE bot_id = #{botId}
+          AND message_id = #{messageId}
+          AND status = 'PROCESSING'
+          AND lease_id = #{leaseId}
+    </update>
+
+    <update id="fail">
+        UPDATE ilink_inbound_message
+        SET
+        <choose>
+            <when test="terminal">
+                status = 'DEAD',
+                next_attempt_at = NULL,
+            </when>
+            <otherwise>
+                status = 'FAILED',
+                next_attempt_at = #{nextAttemptAt,
+                    typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            </otherwise>
+        </choose>
+            last_error = #{error},
+            lease_id = NULL,
+            lease_until = NULL
+        WHERE bot_id = #{botId}
+          AND message_id = #{messageId}
+          AND status = 'PROCESSING'
+          AND lease_id = #{leaseId}
+    </update>
+
+    <delete id="purgeBefore">
+        DELETE FROM ilink_inbound_message
+        WHERE status IN ('FAILED', 'COMPLETED', 'DEAD')
+          AND last_received_at &lt; #{cutoff,
+              typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler}
+    </delete>
+
+</mapper>

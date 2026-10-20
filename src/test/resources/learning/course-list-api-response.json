@@ -1,0 +1,73 @@
+{
+  "channelList": [
+    {
+      "key": 100000001,
+      "cpi": "synthetic-cpi-1",
+      "content": {
+        "name": "默认班级",
+        "studentcount": 50,
+        "beginDate": "2026-03-01 00:00",
+        "endDate": "2026-06-30 23:59",
+        "state": 1,
+        "enc": "enc_value_001",
+        "course": {
+          "data": [
+            {
+              "id": 100000001,
+              "name": "大学计算机基础",
+              "teacherfactor": "张教授",
+              "schools": "示例大学",
+              "imageurl": "https://example.invalid/example1.png"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": 100000002,
+      "content": {
+        "cpi": "synthetic-cpi-2",
+        "name": "合成二班",
+        "studentcount": 40,
+        "beginDate": "2026-03-01 00:00",
+        "endDate": "2026-06-30 23:59",
+        "state": 1,
+        "enc": "enc_value_002",
+        "course": {
+          "data": [
+            {
+              "id": 100000002,
+              "name": "数据结构与算法",
+              "teacherfactor": "李教授",
+              "schools": "示例大学",
+              "imageurl": "https://example.invalid/example2.png"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": 100000003,
+      "cpi": "synthetic-cpi-3",
+      "content": {
+        "name": "合成三班",
+        "studentcount": 30,
+        "beginDate": "2026-03-01 00:00",
+        "endDate": "2026-06-30 23:59",
+        "state": 1,
+        "enc": "enc_value_003",
+        "course": {
+          "data": [
+            {
+              "id": 100000003,
+              "name": "操作系统原理",
+              "teacherfactor": "王教授",
+              "schools": "示例大学",
+              "imageurl": "https://example.invalid/example3.png"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

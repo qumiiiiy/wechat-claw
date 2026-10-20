@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weida.bot.wechatilinkbot.persistence.mybatis.DesktopTaskMapper">
+
+    <resultMap id="desktopTaskResultMap"
+            type="com.weida.bot.wechatilinkbot.model.DesktopTask">
+        <constructor>
+            <idArg column="task_id" javaType="java.lang.String"/>
+            <arg column="conversation_id" javaType="java.lang.String"/>
+            <arg column="url" javaType="java.lang.String"/>
+            <arg column="status" javaType="com.weida.bot.wechatilinkbot.model.DesktopTaskStatus"/>
+            <arg column="created_at" javaType="java.time.Instant"
+                    typeHandler="com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler"/>
+            <arg column="approval_expires_at" javaType="java.time.Instant"
+                    typeHandler="com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler"/>
+            <arg column="approved_at" javaType="java.time.Instant"
+                    typeHandler="com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler"/>
+            <arg column="finished_at" javaType="java.time.Instant"
+                    typeHandler="com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler"/>
+            <arg column="result_code" javaType="java.lang.String"/>
+            <arg column="result_summary" javaType="java.lang.String"/>
+        </constructor>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO desktop_task (
+            task_id,
+            conversation_id,
+            url,
+            status,
+            created_at,
+            approval_expires_at,
+            approved_at,
+            finished_at,
+            result_code,
+            result_summary
+        ) VALUES (
+            #{taskId},
+            #{conversationId},
+            #{url},
+            #{status},
+            #{createdAt, typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            #{approvalExpiresAt, typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            #{approvedAt, typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            #{finishedAt, typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            #{resultCode},
+            #{resultSummary}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE desktop_task
+        SET status = #{status},
+            approved_at = #{approvedAt, typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            finished_at = #{finishedAt, typeHandler=com.weida.bot.wechatilinkbot.persistence.mybatis.InstantTextTypeHandler},
+            result_code = #{resultCode},
+            result_summary = #{resultSummary}
+        WHERE task_id = #{taskId}
+    </update>
+
+    <select id="findById" resultMap="desktopTaskResultMap">
+        SELECT task_id,
+               conversation_id,
+               url,
+               status,
+               created_at,
+               approval_expires_at,
+               approved_at,
+               finished_at,
+               result_code,
+               result_summary
+        FROM desktop_task
+        WHERE task_id = #{taskId}
+    </select>
+
+</mapper>
